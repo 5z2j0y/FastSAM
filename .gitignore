@@ -3,7 +3,11 @@
 *.pyd
 .DS_Store
 .idea
-weights
+weights/*
+!weights/.gitkeep
 build/
 *.egg-info/
 gradio_cached_examples
+temp_output.jpg
+output/*
+!output/.gitkeep
