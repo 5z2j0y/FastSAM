@@ -1,3 +1,21 @@
+![custom UI](assets/custom_ui.png)
+
+*my custom UI*
+
+Forked from [CASIA-IVA-Lab/FastSAM](https://github.com/CASIA-IVA-Lab/FastSAM). Thanks for the amazing work!
+
+To **start** the custom UI, run the following command:
+
+```shell
+python gui.py
+```
+
+Use the **weights/FastSAM-s.pt** as the model path automatically. You can download it here: [FastSAM-s.pt](https://drive.google.com/file/d/10XmSj6mmpmRb8NhXbtiuO9cTTBwR_9SV/view).
+
+You can easily use it as it's like in *Labelme*. Have fun!🎉
+
+the **following** is the **original** README.md:·
+
 ![](assets/logo.png)
 
 # Fast Segment Anything

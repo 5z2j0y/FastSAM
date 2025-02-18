@@ -13,6 +13,10 @@ class FastSAMGUI:
         self.image_path = None
         self.current_image = None
         self.points = []
+        self.start_x = None
+        self.start_y = None
+        self.current_rect = None
+        self.box = None
         
         # 创建主框架
         self.main_frame = ttk.Frame(root, padding="10")
@@ -21,7 +25,9 @@ class FastSAMGUI:
         # 图片显示区域
         self.canvas = tk.Canvas(self.main_frame, width=600, height=400)
         self.canvas.grid(row=0, column=0, columnspan=2, pady=5)
-        self.canvas.bind("<Button-1>", self.on_canvas_click)
+        self.canvas.bind("<ButtonPress-1>", self.on_mouse_down)
+        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
+        self.canvas.bind("<ButtonRelease-1>", self.on_mouse_release)
         
         # 控制面板
         control_frame = ttk.LabelFrame(self.main_frame, text="控制面板", padding="5")
@@ -54,18 +60,41 @@ class FastSAMGUI:
         self.current_image = ImageTk.PhotoImage(image)
         self.canvas.create_image(0, 0, anchor="nw", image=self.current_image)
 
-    def on_canvas_click(self, event):
+    def on_mouse_down(self, event):
         if self.prompt_type.get() == "point":
             x, y = event.x, event.y
             self.points.append([x, y])
-            # 在画布上显示点
             self.canvas.create_oval(x-3, y-3, x+3, y+3, fill="red")
+        elif self.prompt_type.get() == "box":
+            self.start_x = event.x
+            self.start_y = event.y
+
+    def on_mouse_drag(self, event):
+        if self.prompt_type.get() == "box":
+            if self.current_rect:
+                self.canvas.delete(self.current_rect)
+            self.current_rect = self.canvas.create_rectangle(
+                self.start_x, self.start_y, event.x, event.y,
+                outline="red", width=2
+            )
+
+    def on_mouse_release(self, event):
+        if self.prompt_type.get() == "box":
+            end_x, end_y = event.x, event.y
+            # 确保坐标的顺序是 [左上角x, 左上角y, 右下角x, 右下角y]
+            x1 = min(self.start_x, end_x)
+            y1 = min(self.start_y, end_y)
+            x2 = max(self.start_x, end_x)
+            y2 = max(self.start_y, end_y)
+            self.box = [x1, y1, x2, y2]
 
     def clear_canvas(self):
         self.canvas.delete("all")
         if self.current_image:
             self.canvas.create_image(0, 0, anchor="nw", image=self.current_image)
         self.points = []
+        self.box = None
+        self.current_rect = None
 
     def run_segmentation(self):
         if not self.predictor:
@@ -81,6 +110,15 @@ class FastSAMGUI:
             scaled_points = [[int(p[0] * self.predictor.original_width / 600),
                             int(p[1] * self.predictor.original_height / 400)] for p in self.points]
             result = self.predictor.segment_with_points(scaled_points)
+        elif prompt_type == "box" and self.box:
+            # 转换坐标比例
+            scaled_box = [
+                int(self.box[0] * self.predictor.original_width / 600),
+                int(self.box[1] * self.predictor.original_height / 400),
+                int(self.box[2] * self.predictor.original_width / 600),
+                int(self.box[3] * self.predictor.original_height / 400)
+            ]
+            result = self.predictor.segment_with_box(scaled_box)
         elif prompt_type == "text":
             text = self.text_input.get()
             if text:
