@@ -9,7 +9,7 @@ from utils.tools import convert_box_xywh_to_xyxy
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--model_path", type=str, default="./weights/FastSAM.pt", help="model"
+        "--model_path", type=str, default="./weights/FastSAM-s.pt", help="model"
     )
     parser.add_argument(
         "--img_path", type=str, default="./images/dogs.jpg", help="path to image file"

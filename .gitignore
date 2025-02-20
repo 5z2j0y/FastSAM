@@ -9,5 +9,5 @@ build/
 *.egg-info/
 gradio_cached_examples
 temp_output.jpg
-output/*
+output/
 !output/.gitkeep
